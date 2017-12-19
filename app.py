@@ -66,10 +66,10 @@ help_msg = ("/about: send the about message\n"
 
 players = {}
 
-guys = [guy.name.strip('.jpg')
+guys = [guy.name.replace('.jpg', '')
         for guy in dbx.files_list_folder(game_data_path + '/male').entries]
 
-gals = [gal.name.strip('.jpg')
+gals = [gal.name.replace('.jpg', '')
         for gal in dbx.files_list_folder(game_data_path + '/female').entries]
 
 
