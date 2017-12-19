@@ -60,7 +60,8 @@ help_msg = ("/about: send the about message\n"
             "/start: start the game\n"
             "/restart: restart the game\n"
             "/answer <name>: answer the person in the picture with <name>\n"
-            "/pass : skip the current person\n"
+            "/a <name>: short for /answer\n"
+            "/pass : skip the current person (also /answer pass)\n"
             "/status: show your current game's status\n"
             "/msg <message>: send <message> to the developer")
 
@@ -382,6 +383,10 @@ def handle_text_message(event):
 
         if cmd.startswith('answer '):
             name = command[len('answer '):]
+            answer(player_id, name)
+
+        if cmd.split()[0] == 'a':
+            name = command[len('a '):]
             answer(player_id, name)
 
         if cmd.startswith('pass'):
