@@ -229,6 +229,25 @@ def handle_text_message(event):
                 return False
         return True
 
+    def send_question(user_id, prev=None):
+        '''
+        Send a question
+        '''
+        if not prev:
+            content = [TextSendMessage(text="Starting game...")]
+        else:
+            content = [TextSendMessage(text=prev)]
+        link = players[user_id].next_link()
+        TarungBot.reply_message(
+            event.reply_token, content + [
+                ImageSendMessage(
+                    original_content_url=link,
+                    preview_image_url=link
+                ),
+                TextSendMessage(text="Who is this person?")
+            ]
+        )
+
     def start(user_id, force=False):
         '''
         Start a new game for the user.
@@ -238,17 +257,7 @@ def handle_text_message(event):
                         "Use /restart to restart your progress."))
         else:
             set_player(user_id)
-            link = players[user_id].next_link()
-            TarungBot.reply_message(
-                event.reply_token, [
-                    TextSendMessage(text="Starting game..."),
-                    ImageSendMessage(
-                        original_content_url=link,
-                        preview_image_url=link
-                    ),
-                    TextSendMessage(text="Who is this person?")
-                ]
-            )
+            send_question(user_id)
 
     def answer(user_id, name):
         '''
@@ -257,17 +266,7 @@ def handle_text_message(event):
         if check(user_id):
             result = players[user_id].answer(name)
             if not players[user_id].finished():
-                link = players[user_id].next_link()
-                TarungBot.reply_message(
-                    event.reply_token, [
-                        TextSendMessage(text=result),
-                        ImageSendMessage(
-                            original_content_url=link,
-                            preview_image_url=link
-                        ),
-                        TextSendMessage(text="Who is this person?")
-                    ]
-                )
+                send_question(user_id, prev=result)
             else:
                 TarungBot.reply_message(
                     event.reply_token, [
@@ -355,42 +354,43 @@ def handle_text_message(event):
 
     if text[0] == '/':
         command = text[1:]
+        cmd = command.lower().strip()
 
-        if command.lower().strip().startswith('about'):
+        if cmd.startswith('about'):
             quickreply(about_msg)
 
-        if command.lower().strip().startswith('help'):
+        if cmd.startswith('help'):
             quickreply(help_msg)
 
-        if command.lower().strip().startswith('bye'):
+        if cmd.startswith('bye'):
             bye()
 
-        if command.lower().strip().startswith('start'):
+        if cmd.startswith('start'):
             start(player_id)
 
-        if command.lower().strip().startswith('restart'):
+        if cmd.startswith('restart'):
             start(player_id, force=True)
 
-        if command.lower().startswith('answer '):
+        if cmd.startswith('answer '):
             name = command[len('answer '):]
             answer(player_id, name)
 
-        if command.lower().startswith('pass'):
+        if cmd.startswith('pass'):
             answer(player_id, 'pass')
 
-        if command.lower().strip().startswith('status'):
+        if cmd.startswith('status'):
             if check(player_id):
                 quickreply(players[player_id].status())
 
-        if command.lower().startswith('msg '):
+        if cmd.startswith('msg '):
             item = command[len('msg '):]
             ticket_add(item)
 
-        if command.lower().strip().startswith('tix'):
+        if cmd.startswith('tix'):
             if event.source.user_id == my_id:
                 ticket_get()
 
-        if command.lower().strip().startswith('rtix '):
+        if cmd.startswith('rtix '):
             if event.source.user_id == my_id:
                 item = command[len('rtix '):]
                 ticket_rem(item)
