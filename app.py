@@ -122,6 +122,7 @@ class Player:
             pronoun = ('He', 'him')
         else:
             pronoun = ('She', 'her')
+        specific = True
 
         if name.lower() == 'pass':
             msg = ("{} is {}. Remember {} next time!"
@@ -130,17 +131,22 @@ class Player:
 
         else:
             for word in name.title().split():
-                if word in self.pick:
+                if word in 'Muhammad' or word in 'Muhamad' or len(word) < 3:
+                    specific = False
+                    msg = ("Please be more specific. Try again!")
+                elif word in self.pick and len(word) >= 3:
+                    specific = True
                     msg = ("You are correct! {} is {}."
                            .format(pronoun[0], self.pick))
                     self.correct += 1
                     break
             else:
-                msg = ("You are wrong! {} is {}. Remember {} next time!"
-                       .format(pronoun[0], self.pick, pronoun[1]))
-                self.wrong += 1
-
-        del self.progress[self.pick]
+                if specific:
+                    msg = ("You are wrong! {} is {}. Remember {} next time!"
+                           .format(pronoun[0], self.pick, pronoun[1]))
+                    self.wrong += 1
+        if specific:
+            del self.progress[self.pick]
         return msg
 
     def status(self):
@@ -266,7 +272,10 @@ def handle_text_message(event):
         if check(user_id):
             result = players[user_id].answer(name)
             if not players[user_id].finished():
-                send_question(user_id, prev=result)
+                if 'Try again' in result:
+                    quickreply(result)
+                else:
+                    send_question(user_id, prev=result)
             else:
                 TarungBot.reply_message(
                     event.reply_token, [
