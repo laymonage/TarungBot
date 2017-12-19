@@ -149,12 +149,12 @@ class Player:
         '''
         return ("{}/{} persons.\n"
                 "Correct: {} ({:.2f}%)\n"
-                "Wrong: {}\n"
-                "Skipped: {}"
-                .format(len(guys + gals) - len(self.progress),
-                        len(guys + gals), self.correct,
-                        self.correct/len(guys+gals)*100,
-                        self.wrong, self.skipped))
+                "Wrong: {} ({:.2f}%)\n"
+                "Skipped: {} ({:.2f}%)"
+                .format(len(guys+gals) - len(self.progress), len(guys+gals),
+                        self.correct, self.correct/len(guys+gals)*100,
+                        self.wrong, self.wrong/len(guys+gals)*100,
+                        self.skipped, self.skipped/len(guys+gals)*100))
 
 
 @app.route("/callback", methods=['POST'])
