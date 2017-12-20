@@ -75,7 +75,7 @@ help_msg = ("/about : send the about message\n\n"
             "/a <name> : short for /answer\n\n"
             "/pass : skip the current person (also /answer pass)\n\n"
             "/p : short for /pass\n\n"
-            "/status : show your current game's status\n\n"
+            "/stats : show your current game's statistics\n\n"
             "/msg <message> : send <message> to the developer")
 
 
@@ -175,9 +175,9 @@ class Player:
             self.data['count'] += 1
         return msg
 
-    def status(self):
+    def stats(self):
         '''
-        Return current game's status.
+        Return a player's current game statistics.
         '''
         return ("{}/{} persons.\n"
                 "Correct: {} ({:.2f}%)\n"
@@ -334,7 +334,7 @@ def handle_text_message(event):
                         TextSendMessage(text=result),
                         TextSendMessage(text=(
                             "You've finished the game!\n"
-                            + players[player_id].status()))
+                            + players[player_id].stats()))
                     ]
                 )
                 players[user_id].data['count'] = 10
@@ -444,8 +444,8 @@ def handle_text_message(event):
         if cmd.startswith('pass') or cmd.split()[0] == 'p':
             answer(player_id, 'pass')
 
-        if cmd.startswith('status') and check(player_id):
-            quickreply(players[player_id].status())
+        if cmd.startswith('stats') and check(player_id):
+            quickreply(players[player_id].stats())
 
         if cmd.startswith('msg '):
             item = command[len('msg '):]
