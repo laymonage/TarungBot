@@ -100,11 +100,12 @@ class Player:
             return False
         return True
 
-    def next_link(self):
+    def next_link(self, repick=False):
         '''
         Get next random link.
         '''
-        self.pick = random.choice(list(self.progress))
+        if not repick:
+            self.pick = random.choice(list(self.progress))
         if self.pick in guys:
             gender = 'male'
         else:
@@ -243,7 +244,7 @@ def handle_text_message(event):
                 return False
         return True
 
-    def send_question(user_id, prev=None):
+    def send_question(user_id, prev=None, reask=False):
         '''
         Send a question
         '''
@@ -251,7 +252,7 @@ def handle_text_message(event):
             content = [TextSendMessage(text="Starting game...")]
         else:
             content = [TextSendMessage(text=prev)]
-        link = players[user_id].next_link()
+        link = players[user_id].next_link(reask)
         TarungBot.reply_message(
             event.reply_token, content + [
                 ImageSendMessage(
@@ -267,8 +268,11 @@ def handle_text_message(event):
         Start a new game for the user.
         '''
         if not can_start_game(user_id) and not force:
-            quickreply(("Your game is still in progress.\n"
-                        "Use /restart to restart your progress."))
+            msg = ("Your game is still in progress.\n"
+                   "Use /restart to restart your progress.\n"
+                   "Here's your last question:")
+            send_question(user_id, prev=msg, reask=True)
+
         else:
             set_player(user_id)
             send_question(user_id)
