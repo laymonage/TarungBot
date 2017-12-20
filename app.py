@@ -83,13 +83,12 @@ class Player:
     '''
     A player
     '''
-    guys = [guy.name.replace('.jpg', '')
-            for guy in dbx.files_list_folder(game_data_path + '/male')
-            .entries]
-
-    gals = [gal.name.replace('.jpg', '')
-            for gal in dbx.files_list_folder(game_data_path + '/female')
-            .entries]
+    guys = sorted([guy.name.replace('.jpg', '')
+                   for guy in dbx.files_list_folder(game_data_path + '/male')
+                   .entries])
+    gals = sorted([gal.name.replace('.jpg', '')
+                   for gal in dbx.files_list_folder(game_data_path + '/female')
+                   .entries])
 
     def __init__(self, pick='', progress=None, data=None):
         self.pick = pick
