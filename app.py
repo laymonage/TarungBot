@@ -341,7 +341,7 @@ def handle_text_message(event):
             if players[user_id].data['count'] >= 10:
                 players[user_id].data['count'] = 0
                 dbx.files_upload(json.dumps({each: players[each].toJSON()
-                                             for each in players})
+                                             for each in players}, indent=4)
                                  .encode('utf-8'), save_file_path,
                                  dropbox.files.WriteMode.overwrite)
 
@@ -374,8 +374,8 @@ def handle_text_message(event):
             return
 
         tickets.append(item)
-        dbx.files_upload(json.dumps(tickets).encode('utf-8'), tickets_path,
-                         dropbox.files.WriteMode.overwrite)
+        dbx.files_upload(json.dumps(tickets, indent=4).encode('utf-8'),
+                         tickets_path, dropbox.files.WriteMode.overwrite)
         quickreply("Message sent!")
 
     def ticket_get():
@@ -411,8 +411,8 @@ def handle_text_message(event):
                 quickreply("Wrong format.")
             else:
                 quickreply("Message [{}] has been removed.".format(num))
-        dbx.files_upload(json.dumps(tickets).encode('utf-8'), tickets_path,
-                         dropbox.files.WriteMode.overwrite)
+        dbx.files_upload(json.dumps(tickets, indent=4).encode('utf-8'),
+                         tickets_path, dropbox.files.WriteMode.overwrite)
 
     if text[0] == '/':
         command = text[1:]
