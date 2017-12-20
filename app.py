@@ -392,22 +392,19 @@ def handle_text_message(event):
         if cmd.startswith('pass'):
             answer(player_id, 'pass')
 
-        if cmd.startswith('status'):
-            if check(player_id):
-                quickreply(players[player_id].status())
+        if cmd.startswith('status') and check(player_id):
+            quickreply(players[player_id].status())
 
         if cmd.startswith('msg '):
             item = command[len('msg '):]
             ticket_add(item)
 
-        if cmd.startswith('tix'):
-            if event.source.user_id == my_id:
-                ticket_get()
+        if cmd.startswith('tix') and event.source.user_id == my_id:
+            ticket_get()
 
-        if cmd.startswith('rtix '):
-            if event.source.user_id == my_id:
-                item = command[len('rtix '):]
-                ticket_rem(item)
+        if cmd.startswith('rtix ') and event.source.user_id == my_id:
+            item = command[len('rtix '):]
+            ticket_rem(item)
 
 
 if __name__ == "__main__":
