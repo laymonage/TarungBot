@@ -72,21 +72,23 @@ help_msg = ("/about: send the about message\n"
 players = json.loads(dbx.files_download(save_file_path)[1]
                      .content.decode('utf-8'))
 
-guys = [guy.name.replace('.jpg', '')
-        for guy in dbx.files_list_folder(game_data_path + '/male').entries]
-
-gals = [gal.name.replace('.jpg', '')
-        for gal in dbx.files_list_folder(game_data_path + '/female').entries]
-
 
 class Player:
     '''
     A player
     '''
+    guys = [guy.name.replace('.jpg', '')
+            for guy in dbx.files_list_folder(game_data_path + '/male')
+            .entries]
+
+    gals = [gal.name.replace('.jpg', '')
+            for gal in dbx.files_list_folder(game_data_path + '/female')
+            .entries]
+
     def __init__(self, user_id):
         self.user_id = user_id
         self.pick = ''
-        self.progress = {person: False for person in guys + gals}
+        self.progress = Player.guys + Player.gals
         self.data = {'correct': 0, 'exact': 0,
                      'wrong': 0, 'skipped': 0, 'count': 0}
 
@@ -103,8 +105,8 @@ class Player:
         Get next random link.
         '''
         if not repick:
-            self.pick = random.choice(list(self.progress))
-        if self.pick in guys:
+            self.pick = random.choice(self.progress)
+        if self.pick in Player.guys:
             gender = 'male'
         else:
             gender = 'female'
@@ -124,7 +126,7 @@ class Player:
         '''
         Answer current pick.
         '''
-        if self.pick in guys:
+        if self.pick in Player.guys:
             pronoun = ('He', 'him')
         else:
             pronoun = ('She', 'her')
@@ -157,7 +159,7 @@ class Player:
                            .format(pronoun[0], self.pick, pronoun[1]))
                     self.data['wrong'] += 1
         if specific:
-            del self.progress[self.pick]
+            self.progress.remove(self.pick)
             self.data['count'] += 1
         return msg
 
@@ -170,15 +172,16 @@ class Player:
                 "Exact: {} ({:.2f}%)\n"
                 "Wrong: {} ({:.2f}%)\n"
                 "Skipped: {} ({:.2f}%)"
-                .format(len(guys+gals) - len(self.progress), len(guys+gals),
+                .format(len(Player.guys+Player.gals) - len(self.progress),
+                        len(Player.guys+Player.gals),
                         self.data['correct'],
-                        self.data['correct']/len(guys+gals)*100,
+                        self.data['correct']/len(Player.guys+Player.gals)*100,
                         self.data['exact'],
-                        self.data['exact']/len(guys+gals)*100,
+                        self.data['exact']/len(Player.guys+Player.gals)*100,
                         self.data['wrong'],
-                        self.data['wrong']/len(guys+gals)*100,
+                        self.data['wrong']/len(Player.guys+Player.gals)*100,
                         self.data['skipped'],
-                        self.data['skipped']/len(guys+gals)*100))
+                        self.data['skipped']/len(Player.guys+Player.gals)*100))
 
 
 @app.route("/callback", methods=['POST'])
