@@ -328,6 +328,7 @@ def handle_text_message(event):
                             + players[player_id].status()))
                     ]
                 )
+                players[user_id].data['count'] = 10
             if players[user_id].data['count'] >= 10:
                 players[user_id].data['count'] = 0
                 dbx.files_upload(json.dumps({each: players[each].toJSON()
