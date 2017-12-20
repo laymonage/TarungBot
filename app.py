@@ -87,10 +87,7 @@ class Player:
         self.user_id = user_id
         self.pick = ''
         self.progress = {person: False for person in guys + gals}
-        self.correct = 0
-        self.wrong = 0
-        self.skipped = 0
-        self.count = 0
+        self.data = {'correct': 0, 'wrong': 0, 'skipped': 0, 'count': 0}
 
     def finished(self):
         '''
@@ -135,7 +132,7 @@ class Player:
         if name.lower() == 'pass':
             msg = ("{} is {}. Remember {} next time!"
                    .format(pronoun[0], self.pick, pronoun[1]))
-            self.skipped += 1
+            self.data['skipped'] += 1
 
         else:
             for word in name.title().split():
@@ -146,16 +143,16 @@ class Player:
                     specific = True
                     msg = ("You are correct! {} is {}."
                            .format(pronoun[0], self.pick))
-                    self.correct += 1
+                    self.data['correct'] += 1
                     break
             else:
                 if specific:
                     msg = ("You are wrong! {} is {}. Remember {} next time!"
                            .format(pronoun[0], self.pick, pronoun[1]))
-                    self.wrong += 1
+                    self.data['wrong'] += 1
         if specific:
             del self.progress[self.pick]
-            self.count += 1
+            self.data['count'] += 1
         return msg
 
     def status(self):
@@ -167,9 +164,12 @@ class Player:
                 "Wrong: {} ({:.2f}%)\n"
                 "Skipped: {} ({:.2f}%)"
                 .format(len(guys+gals) - len(self.progress), len(guys+gals),
-                        self.correct, self.correct/len(guys+gals)*100,
-                        self.wrong, self.wrong/len(guys+gals)*100,
-                        self.skipped, self.skipped/len(guys+gals)*100))
+                        self.data['correct'],
+                        self.data['correct']/len(guys+gals)*100,
+                        self.data['wrong'],
+                        self.data['wrong']/len(guys+gals)*100,
+                        self.data['skipped'],
+                        self.data['skipped']/len(guys+gals)*100))
 
 
 @app.route("/callback", methods=['POST'])
@@ -297,8 +297,8 @@ def handle_text_message(event):
                             + players[player_id].status()))
                     ]
                 )
-            if players[user_id].count > 10:
-                players[user_id].count = 0
+            if players[user_id].data['count'] > 10:
+                players[user_id].data['count'] = 0
                 dbx.files_upload(json.dumps(players).encode('utf-8'),
                                  save_file_path,
                                  dropbox.files.WriteMode.overwrite)
