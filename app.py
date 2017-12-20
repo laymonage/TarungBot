@@ -69,9 +69,6 @@ help_msg = ("/about: send the about message\n"
             "/status: show your current game's status\n"
             "/msg <message>: send <message> to the developer")
 
-players = json.loads(dbx.files_download(save_file_path)[1]
-                     .content.decode('utf-8'))
-
 
 class Player:
     '''
@@ -85,11 +82,18 @@ class Player:
             for gal in dbx.files_list_folder(game_data_path + '/female')
             .entries]
 
-    def __init__(self):
-        self.pick = ''
-        self.progress = Player.guys + Player.gals
-        self.data = {'correct': 0, 'exact': 0,
-                     'wrong': 0, 'skipped': 0, 'count': 0}
+    def __init__(self, pick='', progress=None, data=None):
+        self.pick = pick
+        if progress is None:
+            self.progress = Player.guys + Player.gals
+        else:
+            self.progress = progress
+        if data is None:
+            self.data = {'correct': 0, 'exact': 0,
+                         'wrong': 0, 'skipped': 0,
+                         'count': 0}
+        else:
+            self.data = data
 
     def finished(self):
         '''
@@ -181,6 +185,22 @@ class Player:
                         self.data['wrong']/len(Player.guys+Player.gals)*100,
                         self.data['skipped'],
                         self.data['skipped']/len(Player.guys+Player.gals)*100))
+
+    def toJSON(self):
+        '''
+        Return an instance's JSON-compatible dictionary representation.
+        '''
+        stats = {'pick': self.pick, 'progress': self.progress,
+                 'data': self.data}
+        return stats
+
+
+players = json.loads(dbx.files_download(save_file_path)[1]
+                     .content.decode('utf-8'))
+for each in players:
+    players[each] = Player(pick=players[each]['pick'],
+                           progress=players[each]['progress'],
+                           data=players[each]['data'])
 
 
 @app.route("/callback", methods=['POST'])
@@ -310,8 +330,9 @@ def handle_text_message(event):
                 )
             if players[user_id].data['count'] > 10:
                 players[user_id].data['count'] = 0
-                dbx.files_upload(json.dumps(players).encode('utf-8'),
-                                 save_file_path,
+                dbx.files_upload(json.dumps({each: players[each].toJSON()
+                                             for each in players})
+                                 .encode('utf-8'), save_file_path,
                                  dropbox.files.WriteMode.overwrite)
 
     def bye():
