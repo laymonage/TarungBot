@@ -43,6 +43,8 @@ dropbox_access_token = os.getenv('DROPBOX_ACCESS_TOKEN', None)
 dbx = dropbox.Dropbox(dropbox_access_token)
 
 game_data_path = os.getenv('GAME_DATA_PATH', None)
+save_file_path = os.getenv('SAVE_FILE_PATH', None)
+
 my_id = os.getenv('MY_USER_ID', None)
 tickets_path = os.getenv('TICKETS_FILE_PATH', None)
 tickets = json.loads(dbx.files_download(tickets_path)[1]
@@ -67,7 +69,8 @@ help_msg = ("/about: send the about message\n"
             "/status: show your current game's status\n"
             "/msg <message>: send <message> to the developer")
 
-players = {}
+players = json.loads(dbx.files_download(save_file_path)[1]
+                     .content.decode('utf-8'))
 
 guys = [guy.name.replace('.jpg', '')
         for guy in dbx.files_list_folder(game_data_path + '/male').entries]
@@ -87,6 +90,7 @@ class Player:
         self.correct = 0
         self.wrong = 0
         self.skipped = 0
+        self.count = 0
 
     def finished(self):
         '''
@@ -150,6 +154,7 @@ class Player:
                     self.wrong += 1
         if specific:
             del self.progress[self.pick]
+            self.count += 1
         return msg
 
     def status(self):
@@ -288,6 +293,11 @@ def handle_text_message(event):
                             + players[player_id].status()))
                     ]
                 )
+            if players[user_id].count > 10:
+                players[user_id].count = 0
+                dbx.files_upload(json.dumps(players).encode('utf-8'),
+                                 save_file_path,
+                                 dropbox.files.WriteMode.overwrite)
 
     def bye():
         '''
