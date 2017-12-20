@@ -320,7 +320,7 @@ def handle_text_message(event):
         tickets.append(item)
         dbx.files_upload(json.dumps(tickets).encode('utf-8'), tickets_path,
                          dropbox.files.WriteMode.overwrite)
-        quickreply("Ticket sent!")
+        quickreply("Message sent!")
 
     def ticket_get():
         '''
