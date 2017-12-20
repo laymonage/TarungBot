@@ -45,6 +45,8 @@ dbx = dropbox.Dropbox(dropbox_access_token)
 game_data_path = os.getenv('GAME_DATA_PATH', None)
 my_id = os.getenv('MY_USER_ID', None)
 tickets_path = os.getenv('TICKETS_FILE_PATH', None)
+tickets = json.loads(dbx.files_download(tickets_path)[1]
+                     .content.decode('utf-8'))
 
 about_msg = ("TarungBot\n"
              "Get to know your Tarung family!\n"
@@ -306,8 +308,6 @@ def handle_text_message(event):
         '''
         Add a ticket.
         '''
-        tickets = json.loads(dbx.files_download(tickets_path)[1]
-                             .content.decode('utf-8'))
         if item in tickets:
             quickreply("Message already exists.")
             return
@@ -326,8 +326,6 @@ def handle_text_message(event):
         '''
         Send current tickets.
         '''
-        tickets = json.loads(dbx.files_download(tickets_path)[1]
-                             .content.decode('utf-8'))
         if not tickets:
             quickreply("No messages.")
             return
@@ -341,8 +339,6 @@ def handle_text_message(event):
         '''
         Remove a ticket.
         '''
-        tickets = json.loads(dbx.files_download(tickets_path)[1]
-                             .content.decode('utf-8'))
         if not tickets:
             quickreply("No messages.")
             return
