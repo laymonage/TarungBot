@@ -87,7 +87,8 @@ class Player:
         self.user_id = user_id
         self.pick = ''
         self.progress = {person: False for person in guys + gals}
-        self.data = {'correct': 0, 'wrong': 0, 'skipped': 0, 'count': 0}
+        self.data = {'correct': 0, 'exact': 0,
+                     'wrong': 0, 'skipped': 0, 'count': 0}
 
     def finished(self):
         '''
@@ -134,6 +135,11 @@ class Player:
                    .format(pronoun[0], self.pick, pronoun[1]))
             self.data['skipped'] += 1
 
+        elif name.lower() == self.pick.lower():
+            msg = ("Wow, that's exactly right! {} is {}."
+                   .format(pronoun[0], self.pick))
+            self.data['exact'] += 1
+
         else:
             for word in name.title().split():
                 if word in 'Muhammad' or word in 'Muhamad' or len(word) < 3:
@@ -161,11 +167,14 @@ class Player:
         '''
         return ("{}/{} persons.\n"
                 "Correct: {} ({:.2f}%)\n"
+                "Exact: {} ({:.2f}%)\n"
                 "Wrong: {} ({:.2f}%)\n"
                 "Skipped: {} ({:.2f}%)"
                 .format(len(guys+gals) - len(self.progress), len(guys+gals),
                         self.data['correct'],
                         self.data['correct']/len(guys+gals)*100,
+                        self.data['exact'],
+                        self.data['exact']/len(guys+gals)*100,
                         self.data['wrong'],
                         self.data['wrong']/len(guys+gals)*100,
                         self.data['skipped'],
