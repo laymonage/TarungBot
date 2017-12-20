@@ -51,24 +51,32 @@ tickets = json.loads(dbx.files_download(tickets_path)[1]
                      .content.decode('utf-8'))
 
 about_msg = ("TarungBot\n"
+             "---\n"
+             "Mengenal Tarung\n"
              "Get to know your Tarung family!\n"
              "---\n"
              "Created by laymonage\n"
-             "See the source code at https://github.com/laymonage/TarungBot\n"
+             "BIG thanks to: everyone who made game.tarung2017.com "
+             "possible, especially Indra (-/\\-)\n"
+             "Also thanks to: TARUNG 2017 and all elements of FASILKOM UI\n"
              "\n"
-             "Also check out @mjb5063s for a multi-purpose bot!")
+             "Any bugs/suggestions? Use /msg\n"
+             "Check out the (ugly) source code at "
+             "https://github.com/laymonage/TarungBot\n"
+             "\n"
+             "Psst, check out @mjb5063s for a multi-purpose bot!")
 
-help_msg = ("/about: send the about message\n"
-            "/help: send this help message\n"
-            "/bye: make me leave this chat room\n"
-            "/start: start the game\n"
-            "/restart: restart the game\n"
-            "/answer <name>: answer the person in the picture with <name>\n"
-            "/a <name>: short for /answer\n"
-            "/pass : skip the current person (also /answer pass)\n"
-            "/p : short for /pass\n"
-            "/status: show your current game's status\n"
-            "/msg <message>: send <message> to the developer")
+help_msg = ("/about : send the about message\n\n"
+            "/help : send this help message\n\n"
+            "/bye : make me leave this chat room\n\n"
+            "/start : start the game\n\n"
+            "/restart : restart the game\n\n"
+            "/answer <name> : answer the person in the picture with <name>\n\n"
+            "/a <name> : short for /answer\n\n"
+            "/pass : skip the current person (also /answer pass)\n\n"
+            "/p : short for /pass\n\n"
+            "/status : show your current game's status\n\n"
+            "/msg <message> : send <message> to the developer")
 
 
 class Player:
@@ -209,14 +217,14 @@ def callback():
     '''
     Webhook callback function
     '''
-    # get X-Line-Signature header value
+    # Get X-Line-Signature header value
     signature = request.headers['X-Line-Signature']
 
-    # get request body as text
+    # Get request body as text
     body = request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
 
-    # handle webhook body
+    # Handle webhook body
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
