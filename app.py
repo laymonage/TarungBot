@@ -85,8 +85,7 @@ class Player:
             for gal in dbx.files_list_folder(game_data_path + '/female')
             .entries]
 
-    def __init__(self, user_id):
-        self.user_id = user_id
+    def __init__(self):
         self.pick = ''
         self.progress = Player.guys + Player.gals
         self.data = {'correct': 0, 'exact': 0,
@@ -245,7 +244,7 @@ def handle_text_message(event):
         '''
         Set a new player or reset an existing player.
         '''
-        players[user_id] = Player(user_id)
+        players[user_id] = Player()
 
     def can_start_game(user_id):
         '''
