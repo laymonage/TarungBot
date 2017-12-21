@@ -75,7 +75,10 @@ help_msg = ("/about : send the about message\n\n"
             "/a <name> : short for /answer\n\n"
             "/pass : skip the current person (also /answer pass)\n\n"
             "/p : short for /pass\n\n"
+            "/name <name> : set your name to <name> to be shown in the "
+            "Leaderboards.\n\n"
             "/stats : show your current game's statistics\n\n"
+            "/lead : see the Leaderboards\n\n"
             "/msg <message> : send <message> to the developer")
 
 
@@ -90,7 +93,8 @@ class Player:
                    for gal in dbx.files_list_folder(game_data_path + '/female')
                    .entries])
 
-    def __init__(self, pick='', progress=None, data=None):
+    def __init__(self, name='Anonymous', pick='', progress=None, data=None):
+        self.name = name
         self.pick = pick
         if progress is None:
             self.progress = Player.guys + Player.gals
@@ -186,7 +190,8 @@ class Player:
                 "Correct: {} ({:.2f}%)\n"
                 "Wrong: {} ({:.2f}%)\n"
                 "Skipped: {} ({:.2f}%)\n"
-                "Score: {}"
+                "Score: {}\n"
+                "Name: {}"
                 .format(len(Player.guys+Player.gals) - len(self.progress),
                         len(Player.guys+Player.gals),
                         self.data['exact'],
@@ -197,21 +202,23 @@ class Player:
                         self.data['wrong']/len(Player.guys+Player.gals)*100,
                         self.data['skipped'],
                         self.data['skipped']/len(Player.guys+Player.gals)*100,
-                        self.data['score']))
+                        self.data['score'],
+                        self.name))
 
     def toJSON(self):
         '''
         Return an instance's JSON-compatible dictionary representation.
         '''
-        stats = {'pick': self.pick, 'progress': self.progress,
-                 'data': self.data}
+        stats = {'name': self.name, 'pick': self.pick,
+                 'progress': self.progress, 'data': self.data}
         return stats
 
 
 players = json.loads(dbx.files_download(save_file_path)[1]
                      .content.decode('utf-8'))
 for each in players:
-    players[each] = Player(pick=players[each]['pick'],
+    players[each] = Player(name=players[each]['name'],
+                           pick=players[each]['pick'],
                            progress=players[each]['progress'],
                            data=players[each]['data'])
 
@@ -237,6 +244,7 @@ def callback():
     return 'OK'
 
 
+# pylint: disable=too-many-statements
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     '''
@@ -349,6 +357,41 @@ def handle_text_message(event):
                                  .encode('utf-8'), save_file_path,
                                  dropbox.files.WriteMode.overwrite)
 
+    def set_name(user_id, name):
+        '''
+        Change the name to be shown in Leaderboards.
+        '''
+        if check(user_id):
+            if len(name) <= 20:
+                if '(group)' not in name:
+                    players[user_id].name = name
+                    quickreply("Name set to {}.".format(name))
+                else:
+                    quickreply("You shouldn't put (group) in your name.")
+            else:
+                quickreply(("Too long.\n"
+                            "Name should consist of 20 characters or less."))
+
+    def see_leaderboards():
+        '''
+        Send current Leaderboards.
+        '''
+        msg = 'Leaderboards:'
+        lb = []
+        for player in players:
+            group = False if player[0] == 'U' else True
+            lb.append([players[player].data['score'],
+                       players[player].name, group])
+        lb.sort(reverse=True)
+        i = 0
+        for item in lb[:10]:
+            if item[2]:
+                msg += '\n{}. {} (group) [{}]'.format(i+1, item[1], item[0])
+            else:
+                msg += '\n{}. {} [{}]'.format(i+1, item[1], item[0])
+            i += 1
+        quickreply(msg)
+
     def bye():
         '''
         Leave a chat room.
@@ -448,8 +491,15 @@ def handle_text_message(event):
         if cmd.startswith('pass') or cmd.split()[0] == 'p':
             answer(player_id, 'pass')
 
+        if cmd.startswith('name '):
+            name = command[len('name '):]
+            set_name(player_id, name)
+
         if cmd.startswith('stats') and check(player_id):
             quickreply(players[player_id].stats())
+
+        if cmd.startswith('lead'):
+            see_leaderboards()
 
         if cmd.startswith('msg '):
             item = command[len('msg '):]
