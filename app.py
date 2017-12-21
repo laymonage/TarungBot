@@ -97,9 +97,9 @@ class Player:
         else:
             self.progress = progress
         if data is None:
-            self.data = {'correct': 0, 'exact': 0,
+            self.data = {'exact': 0, 'correct': 0,
                          'wrong': 0, 'skipped': 0,
-                         'count': 0}
+                         'count': 0, 'score': 0}
         else:
             self.data = data
 
@@ -172,6 +172,9 @@ class Player:
         if specific:
             self.progress.remove(self.pick)
             self.data['count'] += 1
+            self.data['score'] = (5*self.data['exact'] +
+                                  3*self.data['correct'] -
+                                  1*self.data['wrong'])
         return msg
 
     def stats(self):
@@ -179,20 +182,22 @@ class Player:
         Return a player's current game statistics.
         '''
         return ("{}/{} persons.\n"
-                "Correct: {} ({:.2f}%)\n"
                 "Exact: {} ({:.2f}%)\n"
+                "Correct: {} ({:.2f}%)\n"
                 "Wrong: {} ({:.2f}%)\n"
-                "Skipped: {} ({:.2f}%)"
+                "Skipped: {} ({:.2f}%)\n"
+                "Score: {}"
                 .format(len(Player.guys+Player.gals) - len(self.progress),
                         len(Player.guys+Player.gals),
-                        self.data['correct'],
-                        self.data['correct']/len(Player.guys+Player.gals)*100,
                         self.data['exact'],
                         self.data['exact']/len(Player.guys+Player.gals)*100,
+                        self.data['correct'],
+                        self.data['correct']/len(Player.guys+Player.gals)*100,
                         self.data['wrong'],
                         self.data['wrong']/len(Player.guys+Player.gals)*100,
                         self.data['skipped'],
-                        self.data['skipped']/len(Player.guys+Player.gals)*100))
+                        self.data['skipped']/len(Player.guys+Player.gals)*100,
+                        self.data['score']))
 
     def toJSON(self):
         '''
