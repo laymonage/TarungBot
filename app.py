@@ -555,6 +555,14 @@ def handle_text_message(event):
             item = command[len('rtix '):]
             ticket_rem(item)
 
+        if cmd == 'tarung':
+            quickreply('\U00100027 2017! \U001000a4')
+
+        if cmd == 'tarung2017':
+            quickreply(("Serang! \U001000a4\n"
+                        "Terjang! \U00100064\n"
+                        "Menang! \U00100073"))
+
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
