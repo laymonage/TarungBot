@@ -103,7 +103,8 @@ class Player:
         if data is None:
             self.data = {'exact': 0, 'correct': 0,
                          'wrong': 0, 'skipped': 0,
-                         'count': 0, 'score': 0}
+                         'count': 0, 'score': 0,
+                         'high_score': 0}
         else:
             self.data = data
 
@@ -179,6 +180,8 @@ class Player:
             self.data['score'] = (5*self.data['exact'] +
                                   3*self.data['correct'] -
                                   1*self.data['wrong'])
+            if self.data['score'] > self.data['high_score']:
+                self.data['high_score'] = self.data['score']
         return msg
 
     def stats(self):
@@ -190,7 +193,8 @@ class Player:
                 "Correct: {} ({:.2f}%)\n"
                 "Wrong: {} ({:.2f}%)\n"
                 "Skipped: {} ({:.2f}%)\n"
-                "Score: {}\n"
+                "Current Score: {}\n"
+                "Highest Score: {}\n"
                 "Name: {}"
                 .format(len(Player.guys+Player.gals) - len(self.progress),
                         len(Player.guys+Player.gals),
@@ -203,6 +207,7 @@ class Player:
                         self.data['skipped'],
                         self.data['skipped']/len(Player.guys+Player.gals)*100,
                         self.data['score'],
+                        self.data['high_score'],
                         self.name))
 
     def toJSON(self):
@@ -380,7 +385,7 @@ def handle_text_message(event):
         lb = []
         for player in players:
             group = False if player[0] == 'U' else True
-            lb.append([players[player].data['score'],
+            lb.append([players[player].data['high_score'],
                        players[player].name, group])
         lb.sort(reverse=True)
         i = 0
