@@ -67,6 +67,7 @@ about_msg = ("TarungBot\n"
              "Psst, check out @mjb5063s for a multi-purpose bot!")
 
 help_msg = ("/about : send the about message\n\n"
+            "/info : send the info message\n\n"
             "/help : send this help message\n\n"
             "/bye : make me leave this chat room\n\n"
             "/start : start the game\n\n"
@@ -80,6 +81,40 @@ help_msg = ("/about : send the about message\n\n"
             "/stats : show your current game's statistics\n\n"
             "/lead : see the Leaderboards\n\n"
             "/msg <message> : send <message> to the developer")
+
+info_msg = ("How to play:\n"
+            "You can start the game with /start\n"
+            "Answer questions with /answer, or use /pass when in doubt\n"
+            "Start over with /restart\n"
+            "\n"
+            "Valid answer example:\n"
+            "Let name = 'Fatih Al-Mutawakkil'\n"
+            "Answer will be exactly correct "
+            "if answer.lower() == name.lower()\n"
+            "Answer will be correct if "
+            "answer contains 'Fat__' or 'Al-________'\n"
+            "So answer will be valid as long as at least one word "
+            "(space-separated) in answer is in line 'Fatih Al-Mutawakkil'.\n"
+            "like: 'Fati', 'Fatih', 'Fatih A', Al-Mut', 'Fatih mantap'\n"
+            "You can see how this works in the source code.\n"
+            "\n"
+            "Scoring system:\n"
+            "Exactly correct: +5\n"
+            "Correct: +3\n"
+            "Wrong: -1\n"
+            "Skipped: 0\n"
+            "\n"
+            "Since this bot is running on free Heroku dynos, it will sleep "
+            "if there's no activity in 30 minutes. "
+            "The game is saved every time someone answers 10 questions. "
+            "If the bot awakens or the developer updates the bot's code, "
+            "it will load the last saved progress.\n"
+            "So if you leave the game unfinished with progress % 10 != 0 "
+            "for more than 30 minutes, it's recommended to use /start "
+            "so the bot will remind you what your current question is.\n"
+            "\n"
+            "You can send messages to the developer using /msg\n"
+            "(don't worry, it's anonymous!)")
 
 
 class Player:
@@ -327,7 +362,7 @@ def handle_text_message(event):
         if not can_start_game(user_id) and not force:
             msg = ("Your game is still in progress.\n"
                    "Use /restart to restart your progress.\n"
-                   "Here's your last question:")
+                   "Here's your current question:")
             send_question(user_id, prev=msg, reask=True)
 
         else:
@@ -472,6 +507,9 @@ def handle_text_message(event):
 
         if cmd.startswith('about'):
             quickreply(about_msg)
+
+        if cmd.startswith('info'):
+            quickreply(info_msg)
 
         if cmd.startswith('help'):
             quickreply(help_msg)
