@@ -244,7 +244,7 @@ class Player:
         '''
         Return a player's current game statistics.
         '''
-        return ("{}/{} persons.\n"
+        return ("{}/{} persons ({:.2f}%).\n"
                 "Exact: {} ({:.2f}%)\n"
                 "Correct: {} ({:.2f}%)\n"
                 "Partial: {} ({:.2f}%)\n"
@@ -255,6 +255,8 @@ class Player:
                 "Name: {}"
                 .format(len(Player.guys+Player.gals) - len(self.progress),
                         len(Player.guys+Player.gals),
+                        (len(Player.guys+Player.gals) - len(self.progress)) /
+                        len(Player.guys+Player.gals)*100,
                         self.data['exact'],
                         self.data['exact']/len(Player.guys+Player.gals)*100,
                         self.data['correct'],
