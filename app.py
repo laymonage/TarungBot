@@ -74,6 +74,7 @@ help_msg = ("/about : send the about message\n\n"
             "/restart : restart the game\n\n"
             "/answer <name> : answer the person in the picture with <name>\n\n"
             "/a <name> : short for /answer\n\n"
+            "/<name> : (very) short for /answer\n\n"
             "/pass : skip the current person (also /answer pass)\n\n"
             "/p : short for /pass\n\n"
             "/name <name> : set your name to <name> to be shown in the "
@@ -508,60 +509,63 @@ def handle_text_message(event):
         if cmd.startswith('about'):
             quickreply(about_msg)
 
-        if cmd.startswith('info'):
+        elif cmd.startswith('info'):
             quickreply(info_msg)
 
-        if cmd.startswith('help'):
+        elif cmd.startswith('help'):
             quickreply(help_msg)
 
-        if cmd.startswith('bye'):
+        elif cmd.startswith('bye'):
             bye()
 
-        if cmd.startswith('start'):
+        elif cmd.startswith('start'):
             start(player_id)
 
-        if cmd.startswith('restart'):
+        elif cmd.startswith('restart'):
             start(player_id, force=True)
 
-        if cmd.startswith('answer '):
+        elif cmd.startswith('answer '):
             name = command[len('answer '):]
             answer(player_id, name)
 
-        if cmd.split()[0] == 'a':
+        elif cmd.split()[0] == 'a':
             name = command[len('a '):]
             answer(player_id, name)
 
-        if cmd.startswith('pass') or cmd.split()[0] == 'p':
+        elif cmd.startswith('pass') or cmd.split()[0] == 'p':
             answer(player_id, 'pass')
 
-        if cmd.startswith('name '):
+        elif cmd.startswith('name '):
             name = command[len('name '):]
             set_name(player_id, name)
 
-        if cmd.startswith('stats') and check(player_id):
+        elif cmd.startswith('stats') and check(player_id):
             quickreply(players[player_id].stats())
 
-        if cmd.startswith('lead'):
+        elif cmd.startswith('lead'):
             see_leaderboards()
 
-        if cmd.startswith('msg '):
+        elif cmd.startswith('msg '):
             item = command[len('msg '):]
             ticket_add(item)
 
-        if cmd.startswith('tix') and event.source.user_id == my_id:
+        elif cmd.startswith('tix') and event.source.user_id == my_id:
             ticket_get()
 
-        if cmd.startswith('rtix ') and event.source.user_id == my_id:
+        elif cmd.startswith('rtix ') and event.source.user_id == my_id:
             item = command[len('rtix '):]
             ticket_rem(item)
 
-        if cmd == 'tarung':
+        elif cmd == 'tarung':
             quickreply('\U00100027 2017! \U001000a4')
 
-        if cmd == 'tarung2017':
+        elif cmd == 'tarung2017':
             quickreply(("Serang! \U001000a4\n"
                         "Terjang! \U00100064\n"
                         "Menang! \U00100073"))
+
+        else:
+            answer(player_id, command)
 
 
 if __name__ == "__main__":
