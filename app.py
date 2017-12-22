@@ -185,7 +185,7 @@ class Player:
             pronoun = ('He', 'him')
         else:
             pronoun = ('She', 'her')
-        specific = None
+        specific = True
 
         if name.lower() == 'pass':
             msg = ("{} is {}. Remember {} next time!"
@@ -200,6 +200,7 @@ class Player:
         else:
             correct = False
             entirely = True
+            specific = False
             for word in name.title().split():
                 common = (word in 'Muhammad' or word in 'Muhamad' or
                           word in 'Naufal')
@@ -207,7 +208,7 @@ class Player:
                 correct = word in self.pick or correct
                 entirely = word in self.pick and entirely
 
-            if specific is not False:
+            if specific:
                 if correct and entirely:
                     msg = ("You are correct! {} is {}."
                            .format(pronoun[0], self.pick))
@@ -224,7 +225,7 @@ class Player:
             else:
                 msg = ("Please be more specific. Try again!")
 
-        if specific is not False:
+        if specific:
             self.progress.remove(self.pick)
             self.data['count'] += 1
             self.data['score'] = (5*self.data['exact'] +
