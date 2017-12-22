@@ -202,7 +202,11 @@ class Player:
                         word in 'Muhamad' or
                         word in 'Naufal' or
                         len(word) < 3):
-                    if not (correct or partial):
+                    if (not partial and word not in self.pick and
+                            correct or word == name.title().split()[0]
+                            and len(name.title().split()) > 1):
+                        partial = True
+                    if not correct and not partial:
                         specific = False
                         msg = ("Please be more specific. Try again!")
                 elif word in self.pick:
