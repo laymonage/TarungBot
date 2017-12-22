@@ -411,7 +411,7 @@ def handle_text_message(event):
                         TextSendMessage(text=result),
                         TextSendMessage(text=(
                             "You've finished the game!\n"
-                            + players[player_id].stats()))
+                            + players[user_id].stats()))
                     ]
                 )
                 players[user_id].data['count'] = 10
@@ -421,6 +421,15 @@ def handle_text_message(event):
                                              for each in players}, indent=4)
                                  .encode('utf-8'), save_file_path,
                                  dropbox.files.WriteMode.overwrite)
+
+    def end_game(user_id):
+        '''
+        End the current game.
+        '''
+        if check(user_id):
+            players[user_id].pick = ''
+            players[user_id].progress = []
+            quickreply("Game ended.\n" + players[user_id].stats())
 
     def set_name(user_id, name):
         '''
@@ -554,6 +563,9 @@ def handle_text_message(event):
 
         elif cmd.startswith('pass') or cmd.split()[0] == 'p':
             answer(player_id, 'pass')
+
+        elif cmd.startswith('end'):
+            end_game(player_id)
 
         elif cmd.startswith('name '):
             name = command[len('name '):]
