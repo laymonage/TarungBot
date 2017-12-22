@@ -66,23 +66,6 @@ about_msg = ("TarungBot\n"
              "\n"
              "Psst, check out @mjb5063s for a multi-purpose bot!")
 
-help_msg = ("/about : send the about message\n\n"
-            "/info : send the info message\n\n"
-            "/help : send this help message\n\n"
-            "/bye : make me leave this chat room\n\n"
-            "/start : start the game\n\n"
-            "/restart : restart the game\n\n"
-            "/answer <name> : answer the person in the picture with <name>\n\n"
-            "/a <name> : short for /answer\n\n"
-            "/<name> : (very) short for /answer\n\n"
-            "/pass : skip the current person (also /answer pass)\n\n"
-            "/p : short for /pass\n\n"
-            "/name <name> : set your name to <name> to be shown in the "
-            "Leaderboards.\n\n"
-            "/stats : show your current game's statistics\n\n"
-            "/lead : see the Leaderboards\n\n"
-            "/msg <message> : send <message> to the developer")
-
 info_msg = ("How to play:\n"
             "You can start the game with /start\n"
             "Answer questions with /answer, or use /pass when in doubt\n"
@@ -102,6 +85,7 @@ info_msg = ("How to play:\n"
             "Scoring system:\n"
             "Exactly correct: +5\n"
             "Correct: +3\n"
+            "Partial: +2\n"
             "Wrong: -1\n"
             "Skipped: 0\n"
             "\n"
@@ -116,6 +100,23 @@ info_msg = ("How to play:\n"
             "\n"
             "You can send messages to the developer using /msg\n"
             "(don't worry, it's anonymous!)")
+
+help_msg = ("/about : send the about message\n\n"
+            "/info : send the info message\n\n"
+            "/help : send this help message\n\n"
+            "/bye : make me leave this chat room\n\n"
+            "/start : start the game\n\n"
+            "/restart : restart the game\n\n"
+            "/answer <name> : answer the person in the picture with <name>\n\n"
+            "/a <name> : short for /answer\n\n"
+            "/<name> : (very) short for /answer\n\n"
+            "/pass : skip the current person (also /answer pass)\n\n"
+            "/p : short for /pass\n\n"
+            "/name <name> : set your name to <name> to be shown in the "
+            "Leaderboards.\n\n"
+            "/stats : show your current game's statistics\n\n"
+            "/lead : see the Leaderboards\n\n"
+            "/msg <message> : send <message> to the developer")
 
 
 class Player:
@@ -137,10 +138,9 @@ class Player:
         else:
             self.progress = progress
         if data is None:
-            self.data = {'exact': 0, 'correct': 0,
-                         'wrong': 0, 'skipped': 0,
-                         'count': 0, 'score': 0,
-                         'high_score': 0}
+            self.data = {'exact': 0, 'correct': 0, 'partial': 0,
+                         'wrong': 0, 'skipped': 0, 'count': 0,
+                         'score': 0, 'high_score': 0}
         else:
             self.data = data
 
@@ -183,6 +183,8 @@ class Player:
         else:
             pronoun = ('She', 'her')
         specific = True
+        correct = False
+        partial = False
 
         if name.lower() == 'pass':
             msg = ("{} is {}. Remember {} next time!"
@@ -197,24 +199,36 @@ class Player:
         else:
             for word in name.title().split():
                 if word in 'Muhammad' or word in 'Muhamad' or len(word) < 3:
-                    specific = False
-                    msg = ("Please be more specific. Try again!")
-                elif word in self.pick and len(word) >= 3:
+                    if not (correct or partial):
+                        specific = False
+                        msg = ("Please be more specific. Try again!")
+                elif word in self.pick:
                     specific = True
-                    msg = ("You are correct! {} is {}."
-                           .format(pronoun[0], self.pick))
-                    self.data['correct'] += 1
-                    break
-            else:
-                if specific:
-                    msg = ("You are wrong! {} is {}. Remember {} next time!"
-                           .format(pronoun[0], self.pick, pronoun[1]))
-                    self.data['wrong'] += 1
+                    correct = True
+                    if not partial:
+                        msg = ("You are correct! {} is {}."
+                               .format(pronoun[0], self.pick))
+                else:
+                    specific = True
+                    if correct:
+                        partial = True
+                        msg = ("You are partially correct! {} is {}."
+                               .format(pronoun[0], self.pick))
+
+            if specific and not (correct or partial):
+                msg = ("You are wrong! {} is {}. Remember {} next time!"
+                       .format(pronoun[0], self.pick, pronoun[1]))
+                self.data['wrong'] += 1
+            if specific and correct and partial:
+                self.data['partial'] += 1
+            if specific and correct and not partial:
+                self.data['correct'] += 1
         if specific:
             self.progress.remove(self.pick)
             self.data['count'] += 1
             self.data['score'] = (5*self.data['exact'] +
-                                  3*self.data['correct'] -
+                                  3*self.data['correct'] +
+                                  2*self.data['partial'] -
                                   1*self.data['wrong'])
             if self.data['score'] > self.data['high_score']:
                 self.data['high_score'] = self.data['score']
@@ -227,6 +241,7 @@ class Player:
         return ("{}/{} persons.\n"
                 "Exact: {} ({:.2f}%)\n"
                 "Correct: {} ({:.2f}%)\n"
+                "Partial: {} ({:.2f}%)\n"
                 "Wrong: {} ({:.2f}%)\n"
                 "Skipped: {} ({:.2f}%)\n"
                 "Current Score: {}\n"
@@ -238,6 +253,8 @@ class Player:
                         self.data['exact']/len(Player.guys+Player.gals)*100,
                         self.data['correct'],
                         self.data['correct']/len(Player.guys+Player.gals)*100,
+                        self.data['partial'],
+                        self.data['partial']/len(Player.guys+Player.gals)*100,
                         self.data['wrong'],
                         self.data['wrong']/len(Player.guys+Player.gals)*100,
                         self.data['skipped'],
