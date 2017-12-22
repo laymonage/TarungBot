@@ -114,6 +114,7 @@ help_msg = ("/about : send the about message\n\n"
             "/<name> : (very) short for /answer\n\n"
             "/pass : skip the current person (also /answer pass)\n\n"
             "/p : short for /pass\n\n"
+            "/end : end the current game\n\n"
             "/name <name> : set your name to <name> to be shown in the "
             "Leaderboards.\n\n"
             "/stats : show your current game's statistics\n\n"
@@ -241,6 +242,9 @@ class Player:
         '''
         Return a player's current game statistics.
         '''
+        total = (self.data['exact'] + self.data['correct'] +
+                 self.data['partial'] + self.data['wrong'] +
+                 self.data['skipped'])
         return ("{}/{} persons ({:.2f}%).\n"
                 "Exact: {} ({:.2f}%)\n"
                 "Correct: {} ({:.2f}%)\n"
@@ -250,10 +254,8 @@ class Player:
                 "Current Score: {}\n"
                 "Highest Score: {}\n"
                 "Name: {}"
-                .format(len(Player.guys+Player.gals) - len(self.progress),
-                        len(Player.guys+Player.gals),
-                        (len(Player.guys+Player.gals) - len(self.progress)) /
-                        len(Player.guys+Player.gals)*100,
+                .format(total, len(Player.guys+Player.gals),
+                        total/len(Player.guys+Player.gals)*100,
                         self.data['exact'],
                         self.data['exact']/len(Player.guys+Player.gals)*100,
                         self.data['correct'],
