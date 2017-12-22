@@ -171,6 +171,7 @@ class Player:
         data = '"path": "{}/{}/{}.jpg"'.format(game_data_path,
                                                gender, self.pick)
         data = '{' + data + '}'
+        data = data.encode('utf-8')
         url = 'https://api.dropboxapi.com/2/files/get_temporary_link'
         link = requests.post(url, headers=headers,
                              data=data).json()['link']
