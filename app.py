@@ -200,53 +200,43 @@ class Player:
 
         else:
             for word in name.title().split():
-                if (word in 'Muhammad' or
-                        word in 'Muhamad' or
-                        word in 'Naufal' or
-                        len(word) < 3):
-                    if correct and not partial and word not in self.pick:
-                        if (len(name.title().split()) > 1 and
-                                (word == name.title().split()[0] or
-                                 word == name.title().split()[-1])):
-                            partial = True
+                if (word in 'Muhammad' or word in 'Muhamad' or
+                        word in 'Naufal' or len(word) < 3):
+                    if word not in self.pick:
+                        partial = True
                     if not correct and not partial:
                         specific = False
-                        msg = ("Please be more specific. Try again!")
                 elif word in self.pick:
                     specific = True
                     correct = True
-                    if not partial:
-                        msg = ("You are correct! {} is {}."
-                               .format(pronoun[0], self.pick))
-                    elif partial:
-                        msg = ("You are partially correct! {} is actually {}, "
-                               "not {}."
-                               .format(pronoun[0], self.pick, name.title()))
                 else:
                     specific = True
                     partial = True
-                    if correct:
-                        msg = ("You are partially correct! {} is actually {}, "
-                               "not {}."
-                               .format(pronoun[0], self.pick, name.title()))
 
-            if specific and not correct:
-                msg = ("You are wrong! {} is {}. Remember {} next time!"
-                       .format(pronoun[0], self.pick, pronoun[1]))
-                self.data['wrong'] += 1
-            if specific and correct and partial:
-                self.data['partial'] += 1
-            if specific and correct and not partial:
-                self.data['correct'] += 1
-        if specific:
-            self.progress.remove(self.pick)
-            self.data['count'] += 1
-            self.data['score'] = (5*self.data['exact'] +
-                                  3*self.data['correct'] +
-                                  2*self.data['partial'] -
-                                  1*self.data['wrong'])
-            if self.data['score'] > self.data['high_score']:
-                self.data['high_score'] = self.data['score']
+            if specific:
+                if correct and not partial:
+                    msg = ("You are correct! {} is {}."
+                           .format(pronoun[0], self.pick))
+                    self.data['correct'] += 1
+                elif correct and partial:
+                    msg = ("You are partially correct! "
+                           "{} is actually {}, not {}."
+                           .format(pronoun[0], self.pick, name.title()))
+                    self.data['partial'] += 1
+                elif not correct:
+                    msg = ("You are wrong! {} is {}. Remember {} next time!"
+                           .format(pronoun[0], self.pick, pronoun[1]))
+                    self.data['wrong'] += 1
+                self.progress.remove(self.pick)
+                self.data['count'] += 1
+                self.data['score'] = (5*self.data['exact'] +
+                                      3*self.data['correct'] +
+                                      2*self.data['partial'] -
+                                      1*self.data['wrong'])
+                if self.data['score'] > self.data['high_score']:
+                    self.data['high_score'] = self.data['score']
+            else:
+                msg = ("Please be more specific. Try again!")
         return msg
 
     def stats(self):
