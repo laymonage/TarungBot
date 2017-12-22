@@ -208,14 +208,19 @@ class Player:
                     if not partial:
                         msg = ("You are correct! {} is {}."
                                .format(pronoun[0], self.pick))
+                    elif partial:
+                        msg = ("You are partially correct! {} is actually {}, "
+                               "not {}."
+                               .format(pronoun[0], self.pick, name.title()))
                 else:
                     specific = True
+                    partial = True
                     if correct:
-                        partial = True
-                        msg = ("You are partially correct! {} is {}."
-                               .format(pronoun[0], self.pick))
+                        msg = ("You are partially correct! {} is actually {}, "
+                               "not {}."
+                               .format(pronoun[0], self.pick, name.title()))
 
-            if specific and not (correct or partial):
+            if specific and not correct:
                 msg = ("You are wrong! {} is {}. Remember {} next time!"
                        .format(pronoun[0], self.pick, pronoun[1]))
                 self.data['wrong'] += 1
