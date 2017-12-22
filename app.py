@@ -184,9 +184,7 @@ class Player:
             pronoun = ('He', 'him')
         else:
             pronoun = ('She', 'her')
-        specific = True
-        correct = False
-        partial = False
+        specific = None
 
         if name.lower() == 'pass':
             msg = ("{} is {}. Remember {} next time!"
@@ -199,26 +197,28 @@ class Player:
             self.data['exact'] += 1
 
         else:
+            correct = False
+            entirely = True
             for word in name.title().split():
-                if (word in 'Muhammad' or word in 'Muhamad' or
-                        word in 'Naufal' or len(word) < 3):
-                    if word not in self.pick:
-                        partial = True
-                    if not correct and not partial:
+                if word in self.pick:
+                    if ((word in 'Muhammad' or word in 'Muhamad' or
+                         word in 'Naufal' or len(word) < 3)
+                            and specific is not True):
                         specific = False
-                elif word in self.pick:
-                    specific = True
+                        continue
                     correct = True
-                else:
                     specific = True
-                    partial = True
+                else:
+                    entirely = False
+                    if specific is not True and len(word) < 3:
+                        specific = False
 
-            if specific:
-                if correct and not partial:
+            if specific is not False:
+                if correct and entirely:
                     msg = ("You are correct! {} is {}."
                            .format(pronoun[0], self.pick))
                     self.data['correct'] += 1
-                elif correct and partial:
+                elif correct and not entirely:
                     msg = ("You are partially correct! "
                            "{} is actually {}, not {}."
                            .format(pronoun[0], self.pick, name.title()))
