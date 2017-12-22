@@ -71,15 +71,15 @@ info_msg = ("How to play:\n"
             "Answer questions with /answer, or use /pass when in doubt\n"
             "Start over with /restart\n"
             "\n"
-            "Valid answer example:\n"
+            "A valid answer must consist of at least 3 consecutive letters.\n"
+            "Example:\n"
             "Let name = 'Fatih Al-Mutawakkil'\n"
             "Answer will be exactly correct "
             "if answer.lower() == name.lower()\n"
-            "Answer will be correct if "
-            "answer contains 'Fat__' or 'Al-________'\n"
-            "So answer will be valid as long as at least one word (space-"
-            "separated) in answer is in line with 'Fatih Al-Mutawakkil'.\n"
-            "like: 'Fati', 'Fatih', 'Fatih A', Al-Mut'\n"
+            "Answer will be valid as long as at least one word "
+            "(space-separated) in answer is in 'fatih al-mutawakkil' "
+            "(case insensitive).\n"
+            "like: 'fati', 'aTih', 'fatih A', al-MUt'\n"
             "If you add a wrong word, so it's e.g. 'Fatih Al-Muttaqin', "
             "you will get a partial score.\n"
             "You can see how this works in the source code.\n"
@@ -201,12 +201,12 @@ class Player:
             correct = False
             entirely = True
             specific = False
-            for word in name.title().split():
+            for word in name.lower().split():
                 common = (word in 'Muhammad' or word in 'Muhamad' or
                           word in 'Naufal')
                 specific = len(word) >= 3 if not common else specific
-                correct = word in self.pick or correct
-                entirely = word in self.pick and entirely
+                correct = word in self.pick.lower() or correct
+                entirely = word in self.pick.lower() and entirely
 
             if specific:
                 if correct and entirely:
