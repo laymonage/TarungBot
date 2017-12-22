@@ -581,6 +581,12 @@ def handle_text_message(event):
             item = command[len('rtix '):]
             ticket_rem(item)
 
+        elif cmd.startswith('set ') and event.source.user_id == my_id:
+            name = command[len('set '):]
+            players[player_id].progress.append(name)
+            players[player_id].pick = name
+            quickreply("Current pick has been set to {}".format(name))
+
         elif cmd == 'tarung':
             quickreply('\U00100027 2017! \U001000a4')
 
