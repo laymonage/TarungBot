@@ -202,8 +202,9 @@ class Player:
             entirely = True
             specific = False
             for word in name.split():
-                common = (word in 'Muhammad' or word in 'Muhamad' or
-                          word in 'Naufal')
+                common = (word in 'muhammad' or
+                          word in 'muhamad' or
+                          word.title() in 'Naufal')
                 specific = len(word) >= 3 if not common else specific
                 correct = word in self.pick.lower() or correct
                 entirely = word in self.pick.lower() and entirely
