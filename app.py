@@ -227,16 +227,17 @@ class Player:
                     msg = ("You are wrong! {} is {}. Remember {} next time!"
                            .format(pronoun[0], self.pick, pronoun[1]))
                     self.data['wrong'] += 1
-                self.progress.remove(self.pick)
-                self.data['count'] += 1
-                self.data['score'] = (5*self.data['exact'] +
-                                      3*self.data['correct'] +
-                                      2*self.data['partial'] -
-                                      1*self.data['wrong'])
-                if self.data['score'] > self.data['high_score']:
-                    self.data['high_score'] = self.data['score']
             else:
                 msg = ("Please be more specific. Try again!")
+        if specific is not False:
+            self.progress.remove(self.pick)
+            self.data['count'] += 1
+            self.data['score'] = (5*self.data['exact'] +
+                                  3*self.data['correct'] +
+                                  2*self.data['partial'] -
+                                  1*self.data['wrong'])
+            if self.data['score'] > self.data['high_score']:
+                self.data['high_score'] = self.data['score']
         return msg
 
     def stats(self):
