@@ -192,7 +192,7 @@ class Player:
                    .format(pronoun[0], self.pick, pronoun[1]))
             self.data['skipped'] += 1
 
-        elif name.lower() == self.pick.lower():
+        elif name == self.pick.lower():
             msg = ("Wow, that's exactly right! {} is {}."
                    .format(pronoun[0], self.pick))
             self.data['exact'] += 1
@@ -201,7 +201,7 @@ class Player:
             correct = False
             entirely = True
             specific = False
-            for word in name.lower().split():
+            for word in name.split():
                 common = (word in 'Muhammad' or word in 'Muhamad' or
                           word in 'Naufal')
                 specific = len(word) >= 3 if not common else specific
@@ -547,12 +547,8 @@ def handle_text_message(event):
         elif cmd.startswith('restart'):
             start(player_id, force=True)
 
-        elif cmd.startswith('answer '):
-            name = command[len('answer '):]
-            answer(player_id, name)
-
-        elif cmd.split()[0] == 'a':
-            name = command[len('a '):]
+        elif cmd.startswith('answer ') or cmd.split()[0] == 'a':
+            name = cmd.split(maxsplit=1)[1]
             answer(player_id, name)
 
         elif cmd.startswith('pass') or cmd.split()[0] == 'p':
@@ -594,7 +590,7 @@ def handle_text_message(event):
                         "Menang! \U00100073"))
 
         else:
-            answer(player_id, command)
+            answer(player_id, cmd)
 
 
 if __name__ == "__main__":
