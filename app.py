@@ -26,7 +26,7 @@ from linebot.models import (
 
 app = Flask(__name__)
 
-# Get channel_secret and channel_access_token from environment variable
+# Get channel_secret and channel_access_token from environment variable.
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
 if channel_secret is None:
@@ -229,6 +229,7 @@ class Player:
                     self.data['wrong'] += 1
             else:
                 msg = ("Please be more specific. Try again!")
+
         if specific is not False:
             self.progress.remove(self.pick)
             self.data['count'] += 1
@@ -280,8 +281,10 @@ class Player:
         return stats
 
 
+# Load JSON from Dropbox.
 players = json.loads(dbx.files_download(save_file_path)[1]
                      .content.decode('utf-8'))
+# Convert JSON data to Player objects.
 for each in players:
     players[each] = Player(name=players[each]['name'],
                            pick=players[each]['pick'],
@@ -294,14 +297,14 @@ def callback():
     '''
     Webhook callback function
     '''
-    # Get X-Line-Signature header value
+    # Get X-Line-Signature header value.
     signature = request.headers['X-Line-Signature']
 
-    # Get request body as text
+    # Get request body as text.
     body = request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
 
-    # Handle webhook body
+    # Handle webhook body.
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
@@ -364,7 +367,7 @@ def handle_text_message(event):
 
     def send_question(user_id, prev=None, reask=False):
         '''
-        Send a question
+        Send a question.
         '''
         if not prev:
             content = [TextSendMessage(text="Starting game...")]
