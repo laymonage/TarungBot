@@ -198,7 +198,10 @@ class Player:
 
         else:
             for word in name.title().split():
-                if word in 'Muhammad' or word in 'Muhamad' or len(word) < 3:
+                if (word in 'Muhammad' or
+                        word in 'Muhamad' or
+                        word in 'Naufal' or
+                        len(word) < 3):
                     if not (correct or partial):
                         specific = False
                         msg = ("Please be more specific. Try again!")
