@@ -596,6 +596,15 @@ def handle_text_message(event):
             players[player_id].pick = name
             quickreply("Current pick has been set to {}".format(name))
 
+        elif cmd.startswith('cname ') and event.source.user_id == my_id:
+            cname = command.split(maxsplit=2)
+            try:
+                players[cname[1]].name = cname[2]
+            except KeyError:
+                quickreply("That player doesn't exist.")
+            else:
+                quickreply("Name changed.")
+
         elif cmd == 'tarung':
             quickreply('\U00100027 2017! \U001000a4')
 
