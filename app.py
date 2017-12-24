@@ -81,13 +81,14 @@ info_msg = ("How to play:\n"
             "(case insensitive).\n"
             "like: 'fati', 'aTih', 'fatih A', 'aTi al-MUt', 'kKiL'\n"
             "If you add a wrong word, so it's e.g. 'Fatih Al-Muttaqin', "
-            "you will get a partial score.\n"
+            "it will still count as correct, but the bot will remind you "
+            "about it.\n"
             "You can see how this works in the source code.\n"
             "\n"
             "Scoring system:\n"
             "Exactly correct: +5\n"
             "Correct: +3\n"
-            "Partially correct: +2\n"
+            "Partially correct: +3\n"
             "Wrong: -1\n"
             "Skipped: 0\n"
             "\n"
@@ -240,7 +241,7 @@ class Player:
             self.data['count'] += 1
             self.data['score'] = (5*self.data['exact'] +
                                   3*self.data['correct'] +
-                                  2*self.data['partial'] -
+                                  3*self.data['partial'] -
                                   1*self.data['wrong'])
             if self.data['score'] > self.data['high_score']:
                 self.data['high_score'] = self.data['score']
