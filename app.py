@@ -356,11 +356,12 @@ def handle_text_message(event):
         quickreply(msg)
         return False
 
-    def set_player(user_id):
+    def set_player(user_id, high_score=0):
         '''
         Set a new player or reset an existing player.
         '''
         players[user_id] = Player()
+        players[user_id].data['high_score'] = high_score
 
     def can_start_game(user_id):
         '''
@@ -401,7 +402,10 @@ def handle_text_message(event):
             send_question(user_id, prev=msg, reask=True)
 
         else:
-            set_player(user_id)
+            try:
+                set_player(user_id, players[user_id].data['high_score'])
+            except KeyError:
+                set_player(user_id)
             send_question(user_id, prev="Starting game...")
 
     def answer(user_id, name, manual=False):
