@@ -91,6 +91,10 @@ info_msg = ("How to play:\n"
             "Wrong: -1\n"
             "Skipped: 0\n"
             "\n"
+            "If you're playing in a group, /man mode is recommended.\n"
+            "This will prevent the bot from sending the next question until "
+            "someone sends /next, /n, or just /\n"
+            "\n"
             "Since this bot is running on free Heroku dynos, it will sleep "
             "if there's no activity in 30 minutes. "
             "The game is saved every time someone answers 10 questions. "
@@ -109,6 +113,10 @@ help_msg = ("/about : send the about message\n\n"
             "/bye : make me leave this chat room\n\n"
             "/start : start the game\n\n"
             "/restart : restart the game\n\n"
+            "/man : toggle between manual or automatic progression mode\n\n"
+            "/next : send the next question (for manual progression mode)\n\n"
+            "/n : short for /next\n\n"
+            "/ : (very) short for /next\n\n"
             "/answer <name> : answer the person in the picture with <name>\n\n"
             "/a <name> : short for /answer\n\n"
             "/<name> : (very) short for /answer\n\n"
@@ -143,7 +151,7 @@ class Player:
         if data is None:
             self.data = {'exact': 0, 'correct': 0, 'partial': 0,
                          'wrong': 0, 'skipped': 0, 'count': 0,
-                         'score': 0, 'high_score': 0}
+                         'score': 0, 'high_score': 0, 'manual': False}
         else:
             self.data = data
 
@@ -367,10 +375,10 @@ def handle_text_message(event):
         '''
         Send a question.
         '''
-        if not prev:
-            content = [TextSendMessage(text="Starting game...")]
-        else:
+        if prev:
             content = [TextSendMessage(text=prev)]
+        else:
+            content = []
         link = players[user_id].next_link(reask)
         TarungBot.reply_message(
             event.reply_token, content + [
@@ -394,18 +402,18 @@ def handle_text_message(event):
 
         else:
             set_player(user_id)
-            send_question(user_id)
+            send_question(user_id, prev="Starting game...")
 
-    def answer(user_id, name):
+    def answer(user_id, name, manual=False):
         '''
         Answer a question.
         '''
         if check(user_id):
             result = players[user_id].answer(name)
             if not players[user_id].finished():
-                if 'Try again' in result:
+                if 'Try again' in result or manual:
                     quickreply(result)
-                else:
+                elif not manual:
                     send_question(user_id, prev=result)
             else:
                 TarungBot.reply_message(
@@ -537,7 +545,25 @@ def handle_text_message(event):
         dbx.files_upload(json.dumps(tickets, indent=4).encode('utf-8'),
                          tickets_path, dropbox.files.WriteMode.overwrite)
 
-    if text[0] == '/':
+    if text.lower().strip() in ('/', '/n', '/next'):
+        if players[player_id].pick in players[player_id].progress:
+            quickreply(("You haven't answered the question.\n"
+                        "Use /pass if you want to skip it."))
+        else:
+            send_question(player_id)
+
+    elif text.lower().strip() == '/man':
+        try:
+            conf = players[player_id].data['manual']
+        except KeyError:
+            conf = False
+        players[player_id].data['manual'] = False if conf else True
+        if players[player_id].data['manual']:
+            quickreply("Game mode changed from automatic to manual.")
+        else:
+            quickreply("Game mode changed from manual to automatic.")
+
+    elif text[0] == '/' and len(text) > 1:
         command = text[1:]
         cmd = command.lower().strip()
 
@@ -561,7 +587,11 @@ def handle_text_message(event):
 
         elif cmd.startswith('answer ') or cmd.split()[0] == 'a':
             name = cmd.split(maxsplit=1)[1]
-            answer(player_id, name)
+            try:
+                answer(player_id, name,
+                       manual=players[player_id].data['manual'])
+            except KeyError:
+                answer(player_id, name)
 
         elif cmd.startswith('pass') or cmd.split()[0] == 'p':
             answer(player_id, 'pass')
@@ -614,7 +644,11 @@ def handle_text_message(event):
                         "Menang! \U00100073"))
 
         else:
-            answer(player_id, cmd)
+            try:
+                answer(player_id, cmd,
+                       manual=players[player_id].data['manual'])
+            except KeyError:
+                answer(player_id, cmd)
 
 
 if __name__ == "__main__":
